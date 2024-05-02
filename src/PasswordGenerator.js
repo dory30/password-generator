@@ -4,6 +4,7 @@ import './PasswordGenerator.css';
 function PasswordGenerator() {
     const [password, setPassword] = useState('');
     const [passwordLength, setPasswordLength] = useState(8);
+    const [includeLowercase, setIncludeLowercase] = useState(false);
     const [includeUppercase, setIncludeUppercase] = useState(true);
     const [includeNumbers, setIncludeNumbers] = useState(false);
     const [includeSymbols, setIncludeSymbols] = useState(true);
@@ -14,7 +15,10 @@ function PasswordGenerator() {
         const numbers = '0123456789';
         const symbols = '!@#$%^&*()_+=-[]{}|;:",.<>?';
 
-        let validChars = lowerCaseLetters;
+        let validChars = '';
+        if (includeLowercase) {
+            validChars += lowerCaseLetters;
+        }
         if (includeUppercase) {
             validChars += upperCaseLetters;
         }
@@ -32,9 +36,14 @@ function PasswordGenerator() {
         }
         setPassword(generatedPassword);
     };
-
+    document.querySelector('.range-slider').addEventListener('input', function(e) {
+        e.target.setAttribute('data-value', e.target.value);
+      });
+      
     return (
+        
         <div className="generator-container">
+            
             <div className="generator-header">PASSWORD GENERATOR</div>
             <input
                 type="text"
@@ -42,8 +51,19 @@ function PasswordGenerator() {
                 readOnly
                 className="generator-input"
             />
-            <button onClick={generatePassword} className="refresh-button">Generate</button>
+            <button className="copy-button">Copy</button>
+           
             <div className="options">
+                <div className="option">
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={includeLowercase}
+                            onChange={(e) => setIncludeLowercase(e.target.checked)}
+                        />
+                        Lowercase
+                    </label>
+                </div>
                 <div className="option">
                     <label>
                         <input
@@ -83,8 +103,9 @@ function PasswordGenerator() {
                     onChange={(e) => setPasswordLength(e.target.value)}
                 />
             </div>
-            <button className="copy-button">Copy</button>
+            <button onClick={generatePassword} className="refresh-button">Generate</button>
         </div>
+        
     );
 }
 
