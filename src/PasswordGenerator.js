@@ -1,13 +1,43 @@
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClone } from '@fortawesome/free-solid-svg-icons';
 import './PasswordGenerator.css';
 
+
+
 function PasswordGenerator() {
+
+
     const [password, setPassword] = useState('');
+    const [copySuccess, setCopySuccess] = useState('');
     const [passwordLength, setPasswordLength] = useState(8);
+    const [passwordStrength, setPasswordStrength] = useState('');
     const [includeLowercase, setIncludeLowercase] = useState(false);
     const [includeUppercase, setIncludeUppercase] = useState(true);
     const [includeNumbers, setIncludeNumbers] = useState(false);
     const [includeSymbols, setIncludeSymbols] = useState(true);
+
+    const assessStrength = (length) => {
+        if (length < 8) return 'Weak';
+        if (length <= 12) return 'Optimal';
+        return 'Strong';
+    };
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(password);
+            setCopySuccess('Copied!');
+            setTimeout(() => setCopySuccess(''), 1000);
+        } catch (err) {
+            setCopySuccess('Failed to copy!');
+        }
+    };
+
+    const handleSliderChange = (e) => {
+        const newLength = e.target.value;
+        setPasswordLength(newLength);
+        setPasswordStrength(assessStrength(newLength));
+    };
 
     const generatePassword = () => {
         const lowerCaseLetters = 'abcdefghijklmnopqrstuvwxyz';
@@ -36,23 +66,36 @@ function PasswordGenerator() {
         }
         setPassword(generatedPassword);
     };
-    document.querySelector('.range-slider').addEventListener('input', function(e) {
-        e.target.setAttribute('data-value', e.target.value);
-      });
-      
+
     return (
-        
+
         <div className="generator-container">
-            
+
             <div className="generator-header">PASSWORD GENERATOR</div>
-            <input
-                type="text"
-                value={password}
-                readOnly
-                className="generator-input"
-            />
-            <button className="copy-button">Copy</button>
-           
+            <div className="password-output">
+                <input
+                    type="text"
+                    value={password}
+                    readOnly
+                    className="generator-input"
+                />
+                {
+                     copySuccess === 'Copied!' ? (
+                        <button className="copy-button" disabled>
+                          {copySuccess}
+                        </button>
+                      ) : (
+                    <button onClick={handleCopy} className="copy-button">
+                        <FontAwesomeIcon icon={faClone} className="icon-button" />
+                        Copy
+                    </button>
+                        )
+                }
+                
+            </div>
+
+            <div className="password-strength">{passwordStrength}</div>
+
             <div className="options">
                 <div className="option">
                     <label>
@@ -94,18 +137,20 @@ function PasswordGenerator() {
                         Special Characters
                     </label>
                 </div>
+
+                <div className="password-length">Password Length: {passwordLength}</div>
                 <input
                     className="range-slider"
                     type="range"
                     min="4"
                     max="20"
                     value={passwordLength}
-                    onChange={(e) => setPasswordLength(e.target.value)}
+                    onChange={handleSliderChange}
                 />
             </div>
             <button onClick={generatePassword} className="refresh-button">Generate</button>
         </div>
-        
+
     );
 }
 
